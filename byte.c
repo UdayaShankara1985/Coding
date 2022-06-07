@@ -17,7 +17,13 @@ int print_char (char val)
 void shift_byte_array (unsigned char *byte_ptr, int byte_len, int shift_bits)
 {
    while (shift_bits){
-      shift_byteArray_shiftRight(byte_ptr, byte_len ,
+      if (shift_bits >= 8){
+         shift_byteArray_shiftRight(byte_ptr, byte_len , 8);
+         shift_bits -= 8;
+      } else {
+         shift_byteArray_shiftRight(byte_ptr, byte_len, shift_bits);
+         shift_bits = 0;
+      }
    }
 }
 
@@ -66,7 +72,7 @@ main( int argc, char **argv)
    printf ("shift  %d \n", shift);
 
    print_bytes ((char*)bytearray, 2);
-   shift_byteArray_shiftRight (bytearray,2,shift);
+   shift_byte_array(bytearray,2,shift);
    print_bytes ((char*)bytearray, 2);
 }
 
