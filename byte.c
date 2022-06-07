@@ -69,3 +69,5 @@ main( int argc, char **argv)
    shift_byteArray_shiftRight (bytearray,2,shift);
    print_bytes ((char*)bytearray, 2);
 }
+
+
