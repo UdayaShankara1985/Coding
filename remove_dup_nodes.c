@@ -6,21 +6,32 @@
 #define true (1)
 #define false (0)
 
-#define H_NEXT(h)   (h)->hash_next
-#define NEXT(h)     (h)->next
-
-#define HASH_LEN  (10)
-
 struct node 
 {
-   struct node *next;
-   struct node *hash_next;
-   int          data;
+   struct node   *next;         // next node in the list
+   struct node   *hash_next;    // next node in the hash table (obselute)
+   int           data;          // data 
 };
 
-struct node *hash_table[HASH_LEN];
+#define NEXT(h)     (h)->next
+
+//absolute
+#define HASH_LEN  (10)
+#define H_NEXT(h)   (h)->hash_next
+
+#define do_insert(res, n)                            \
+ do {                                                \
+     struct node *temp = n;                          \
+     n = get_next (n);                               \
+     if (insert_no_duplicate  (&res, temp) != true){ \
+         free_node (temp);                           \
+     }                                               \
+ }while (0) 
+
+#define SIZEOF(a)   sizeof(a)/sizeof(a[0])
 
 
+// function to get the next date value
 struct node* get_next (struct node *n)
 {
   return (n) ? n->next : n;
@@ -31,13 +42,7 @@ struct node *get_hash_next (struct node *n)
   return (n) ? n->hash_next : n;
 }
 
-
-
-int get_key (struct node *n)
-{
-   return (n->data % HASH_LEN);
-}
-
+// function to insert the nodes into list if duplicate found then return false;
 int insert_no_duplicate (struct node ** head, struct node *n)
 {
    struct node *h = *head, *prev = NULL;
@@ -60,32 +65,52 @@ int insert_no_duplicate (struct node ** head, struct node *n)
    return true;
 }
 
+
+// function to remove the duplicate notes from the lists and return the result list 
 struct node * remove_duplicate_v2 (struct node *l1, struct node *l2)
 {
-   struct node *res = NULL, *temp;
+   struct node *res = NULL, *l;
    void free_node (struct node *n);
 
    while (l1 || l2){
-      if (l1) {
-          temp = l1;
-          l1 = get_next (l1);
-          if (insert_no_duplicate (&res, temp) != true){
-              free_node (temp);
-          }
-      } 
-      if (l2){
-          temp = l2;
-          l2 = get_next (l2);
-          if (insert_no_duplicate (&res, temp) != true){
-              free_node (temp);
-          } 
-      }
-     
+        if (l1)
+            do_insert (res, l1);
+        else 
+            do_insert (res, l2);
    }
 
    return res;
 }
 
+
+// function to get the tail of the list
+struct node* get_tail (struct node *head)
+{
+   if (head->next == NULL) return head;
+
+   while (head->next) head = get_next (head);
+   return head;
+}
+
+// function to free the list
+void free_node (struct node *n)
+{
+   n->next = n->hash_next = NULL;
+   free (n);
+   n = NULL;
+}
+
+// function to creat the node 
+struct node * create_node (int data)
+{
+    struct node *n = (struct node*)malloc (sizeof(*n));
+   
+    n->next = n->hash_next = NULL;
+    n->data = data;
+    return n;
+}
+
+#if 0
 
 int is_node_duplicate (struct node *head, struct node *n)
 {
@@ -112,30 +137,13 @@ int is_node_duplicate (struct node *head, struct node *n)
     return false;
 }
 
-struct node* get_tail (struct node *head)
+
+struct node *hash_table[HASH_LEN];
+
+int get_key (struct node *n)
 {
-   if (head->next == NULL) return head;
-
-   while (head->next) head = get_next (head);
-   return head;
+   return (n->data % HASH_LEN);
 }
-
-void free_node (struct node *n)
-{
-   n->next = n->hash_next = NULL;
-   free (n);
-   n = NULL;
-}
-
-struct node * create_node (int data)
-{
-    struct node *n = (struct node*)malloc (sizeof(*n));
-   
-    n->next = n->hash_next = NULL;
-    n->data = data;
-    return n;
-}
-
 void insert_into_list (struct node **head, struct node *n)
 {
    struct node *h = *head;
@@ -165,7 +173,9 @@ struct node * remove_duplicate (struct node *l1, struct node *l2)
 
     return result;
 }
+#endif
 
+// function to insert the node at the tail
 static void insert_tail (struct node **head, struct node **tail, int data)
 {
     if (!*head) {
@@ -176,6 +186,7 @@ static void insert_tail (struct node **head, struct node **tail, int data)
     }
 }
 
+// function to populate the list from array 
 struct node* populate_list (int *array, int len)
 {
     struct node *head = NULL, *tail = NULL;
@@ -188,6 +199,7 @@ struct node* populate_list (int *array, int len)
     return head;
 }
 
+// function to show the list values 
 void show_list ( struct node *l, char *msg)
 {
    if (msg) printf ("%s \n", msg);
@@ -197,9 +209,6 @@ void show_list ( struct node *l, char *msg)
    }
    putchar('\n');
 }
-#define SIZEOF(a)   sizeof(a)/sizeof(a[0])
-
-
 
 
 int main()
