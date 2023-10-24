@@ -38,6 +38,54 @@ int get_key (struct node *n)
    return (n->data % HASH_LEN);
 }
 
+int insert_no_duplicate (struct node ** head, struct node *n)
+{
+   struct node *h = *head, *prev = NULL;
+   n->next = NULL;
+
+   if (!h) {
+      *head = n;
+      return true;
+   }
+   
+   while (h) { 
+       if (h->data == n->data) 
+           return false;
+
+       prev = h;
+       h = get_next (h);
+   }
+
+   prev->next = n;
+   return true;
+}
+
+struct node * remove_duplicate_v2 (struct node *l1, struct node *l2)
+{
+   struct node *res = NULL, *temp;
+   void free_node (struct node *n);
+
+   while (l1 || l2){
+      if (l1) {
+          temp = l1;
+          l1 = get_next (l1);
+          if (insert_no_duplicate (&res, temp) != true){
+              free_node (temp);
+          }
+      } 
+      if (l2){
+          temp = l2;
+          l2 = get_next (l2);
+          if (insert_no_duplicate (&res, temp) != true){
+              free_node (temp);
+          } 
+      }
+     
+   }
+
+   return res;
+}
+
 
 int is_node_duplicate (struct node *head, struct node *n)
 {
@@ -151,6 +199,9 @@ void show_list ( struct node *l, char *msg)
 }
 #define SIZEOF(a)   sizeof(a)/sizeof(a[0])
 
+
+
+
 int main()
 {
     int a1[] = { 1, 2, 2, 4};
@@ -164,6 +215,6 @@ int main()
     show_list (l1, "first list");
     show_list (l2, "second list");
 
-    r = remove_duplicate (l1, l2);
+    r = remove_duplicate_v2 (l1, l2);
     show_list (r, "result list");
 }
